@@ -4,36 +4,52 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_PATH = path.join(__dirname, 'projects.json');
+const DATA_PATH = path.join(process.cwd(), 'projects.json');
+const DIST_PATH = path.join(process.cwd(), 'dist');
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
+
+  console.log(`[SERVER] Starting server...`);
+  console.log(`[SERVER] CWD: ${process.cwd()}`);
+  console.log(`[SERVER] DATA_PATH: ${DATA_PATH}`);
+  console.log(`[SERVER] NODE_ENV: ${process.env.NODE_ENV}`);
 
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-  // Initialize data file if it doesn't exist or is invalid
+  // Health check
+  app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+
+  // Initialize data file
   if (!fs.existsSync(DATA_PATH)) {
-    const initialData = {
-      projects: [],
-      users: {}
-    };
-    fs.writeFileSync(DATA_PATH, JSON.stringify(initialData, null, 2));
+    console.log(`[SERVER] Initializing ${DATA_PATH}`);
+    fs.writeFileSync(DATA_PATH, JSON.stringify({ projects: [], users: {} }, null, 2));
   }
+
+  // API Middleware
+  app.use('/api', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    
+    console.log(`[API] ${req.method} ${req.originalUrl}`);
+    next();
+  });
 
   // API Routes
   app.get('/api/projects', (req, res) => {
     try {
-      if (!fs.existsSync(DATA_PATH)) {
-        return res.json([]);
-      }
       const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
       res.json(data.projects || []);
     } catch (err) {
-      res.status(500).json({ success: false, error: 'Failed to read data' });
+      console.error('[API ERROR] GET /api/projects:', err);
+      res.status(500).json({ success: false, message: 'Veri okuma hatası' });
     }
   });
 
@@ -41,32 +57,25 @@ async function startServer() {
     try {
       const project = req.body;
       if (!project || !project.title) {
-        return res.status(400).json({ success: false, message: 'Geçersiz proje verisi' });
+        return res.status(400).json({ success: false, message: 'Eksik proje bilgisi' });
       }
       
       const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
-      
       const newProject = {
         ...project,
-        id: project.id || `project-${Date.now()}`
+        id: `project-${Date.now()}`,
+        order: data.projects.length
       };
 
       data.projects.unshift(newProject);
-
-      // Also added to users if uid provided
-      const uid = project.uid || project.userId;
-      if (uid) {
-        if (!data.users[uid]) data.users[uid] = { projects: [] };
-        data.users[uid].projects.unshift(newProject);
-      }
-
       fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
-      res.json({ success: true, message: "Proje eklendi", project: newProject });
+      
+      res.json({ success: true, message: 'Proje eklendi', project: newProject });
     } catch (err) {
-      res.status(500).json({ success: false, message: 'Failed to save data' });
+      console.error('[API ERROR] POST /api/projects:', err);
+      res.status(500).json({ success: false, message: 'Kaydetme hatası' });
     }
   });
-
   app.put('/api/projects/:id', (req, res) => {
     try {
       const { id } = req.params;
@@ -81,18 +90,21 @@ async function startServer() {
       data.projects[index] = { ...data.projects[index], ...updatedProject };
 
       // Update in users as well
-      Object.keys(data.users).forEach(uid => {
-        if (data.users[uid].projects) {
-          data.users[uid].projects = data.users[uid].projects.map((p: any) => 
-            String(p.id) === String(id) ? { ...p, ...updatedProject } : p
-          );
-        }
-      });
+      if (data.users) {
+        Object.keys(data.users).forEach(uid => {
+          if (data.users[uid].projects) {
+            data.users[uid].projects = data.users[uid].projects.map((p: any) => 
+              String(p.id) === String(id) ? { ...p, ...updatedProject } : p
+            );
+          }
+        });
+      }
 
       fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
       res.json({ success: true, message: 'Proje güncellendi' });
     } catch (err) {
-      res.status(500).json({ success: false, message: 'Failed to update data' });
+      console.error('[API ERROR] PUT /api/projects:', err);
+      res.status(500).json({ success: false, message: 'Güncelleme hatası' });
     }
   });
 
@@ -106,12 +118,7 @@ async function startServer() {
         return res.status(400).json({ success: false, message: "Eksik veri: Project ID gerekli" });
       }
 
-      if (!fs.existsSync(DATA_PATH)) {
-        return res.status(404).json({ success: false, message: "Veri dosyası bulunamadı" });
-      }
-
       const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
-      const initialCount = data.projects.length;
 
       // Filter and update
       data.projects = data.projects.filter((p: any) => String(p.id) !== String(targetId));
@@ -134,6 +141,7 @@ async function startServer() {
         deletedId: targetId
       });
     } catch (err: any) {
+      console.error('[API ERROR] DELETE /api/projects:', err);
       res.status(500).json({ success: false, message: err.message || 'Silme işlemi başarısız' });
     }
   });
@@ -147,10 +155,9 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     // Production statics
-    const distPath = path.join(__dirname, 'dist');
-    app.use(express.static(distPath));
+    app.use(express.static(DIST_PATH));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(path.join(DIST_PATH, 'index.html'));
     });
   }
 
