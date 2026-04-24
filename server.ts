@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 
@@ -11,34 +12,26 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
-  console.log(`[SERVER] Starting server...`);
-  console.log(`[SERVER] CWD: ${process.cwd()}`);
-  console.log(`[SERVER] DATA_PATH: ${DATA_PATH}`);
-  console.log(`[SERVER] NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`[SERVER] Node Version: ${process.version}`);
+  console.log(`[SERVER] ENV: ${process.env.NODE_ENV}`);
+  console.log(`[SERVER] PORT: ${PORT}`);
 
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-  // Health check
-  app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+  app.use(cors());
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
   // Initialize data file
   if (!fs.existsSync(DATA_PATH)) {
-    console.log(`[SERVER] Initializing ${DATA_PATH}`);
+    console.log(`[SERVER] Initializing data file at ${DATA_PATH}`);
     fs.writeFileSync(DATA_PATH, JSON.stringify({ projects: [], users: {} }, null, 2));
   }
 
-  // API Middleware
+  // Health check - define this early
+  app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+
+  // API Route Debugging Middleware
   app.use('/api', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
-    if (req.method === 'OPTIONS') {
-      return res.sendStatus(200);
-    }
-    
-    console.log(`[API] ${req.method} ${req.originalUrl}`);
+    console.log(`[API LOG] ${req.method} ${req.url}`);
     next();
   });
 
@@ -48,7 +41,7 @@ async function startServer() {
       const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
       res.json(data.projects || []);
     } catch (err) {
-      console.error('[API ERROR] GET /api/projects:', err);
+      console.error('[API ERR] GET projects:', err);
       res.status(500).json({ success: false, message: 'Veri okuma hatası' });
     }
   });
@@ -64,18 +57,21 @@ async function startServer() {
       const newProject = {
         ...project,
         id: `project-${Date.now()}`,
-        order: data.projects.length
+        order: data.projects ? data.projects.length : 0
       };
 
+      if (!data.projects) data.projects = [];
       data.projects.unshift(newProject);
       fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
       
+      console.log(`[API OK] Created project: ${newProject.id}`);
       res.json({ success: true, message: 'Proje eklendi', project: newProject });
     } catch (err) {
-      console.error('[API ERROR] POST /api/projects:', err);
+      console.error('[API ERR] POST projects:', err);
       res.status(500).json({ success: false, message: 'Kaydetme hatası' });
     }
   });
+
   app.put('/api/projects/:id', (req, res) => {
     try {
       const { id } = req.params;
@@ -89,7 +85,6 @@ async function startServer() {
 
       data.projects[index] = { ...data.projects[index], ...updatedProject };
 
-      // Update in users as well
       if (data.users) {
         Object.keys(data.users).forEach(uid => {
           if (data.users[uid].projects) {
@@ -103,12 +98,11 @@ async function startServer() {
       fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
       res.json({ success: true, message: 'Proje güncellendi' });
     } catch (err) {
-      console.error('[API ERROR] PUT /api/projects:', err);
+      console.error('[API ERR] PUT projects:', err);
       res.status(500).json({ success: false, message: 'Güncelleme hatası' });
     }
   });
 
-  // Revised DELETE Route
   app.delete(['/api/projects/:uid/:projectId', '/api/projects/:projectId'], (req: any, res: any) => {
     try {
       const { uid, projectId } = req.params;
@@ -119,8 +113,6 @@ async function startServer() {
       }
 
       const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
-
-      // Filter and update
       data.projects = data.projects.filter((p: any) => String(p.id) !== String(targetId));
       
       if (data.users) {
@@ -134,36 +126,41 @@ async function startServer() {
       }
 
       fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
-
-      res.json({
-        success: true,
-        message: "Proje silindi",
-        deletedId: targetId
-      });
+      res.json({ success: true, message: "Proje silindi", deletedId: targetId });
     } catch (err: any) {
-      console.error('[API ERROR] DELETE /api/projects:', err);
-      res.status(500).json({ success: false, message: err.message || 'Silme işlemi başarısız' });
+      console.error('[API ERR] DELETE projects:', err);
+      res.status(500).json({ success: false, message: 'Silme işlemi başarısız' });
     }
   });
 
-  // Vite preview setup for development
+  // Serve static files / Vite middleware AFTER API routes
   if (process.env.NODE_ENV !== 'production') {
+    console.log('[SERVER] Running in DEVELOPMENT mode with Vite Middleware');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
   } else {
-    // Production statics
-    app.use(express.static(DIST_PATH));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(DIST_PATH, 'index.html'));
-    });
+    console.log(`[SERVER] Running in PRODUCTION mode, serving dist from ${DIST_PATH}`);
+    if (fs.existsSync(DIST_PATH)) {
+      app.use(express.static(DIST_PATH));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(DIST_PATH, 'index.html'));
+      });
+    } else {
+      console.error(`[SERVER] ERROR: dist directory not found at ${DIST_PATH}. Make sure to run 'npm run build' first.`);
+      app.get('*', (req, res) => {
+        res.status(500).send('Production build missing. Please run build command.');
+      });
+    }
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`[SERVER] Express server listening on 0.0.0.0:${PORT}`);
   });
 }
 
-startServer();
+startServer().catch(err => {
+  console.error('[SERVER] Failed to start server:', err);
+});
