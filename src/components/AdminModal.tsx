@@ -158,22 +158,18 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         });
       }
 
-      const text = await response.text();
-      let result;
-      try {
-        result = JSON.parse(text);
-      } catch (e) {
-        throw new Error('API JSON döndürmedi: ' + text.substring(0, 50));
-      }
+      const result = await response.json().catch(() => {
+        throw new Error('API JSON formatında bir cevap dönmedi.');
+      });
 
-      if (response.ok) {
+      if (response.ok && result.success) {
         if (editingId) {
           setExistingProjects(prev => prev.map(p => p.id === editingId ? { ...p, ...projectData, id: editingId } : p));
-          alert('Proje güncellendi!');
+          alert(result.message || 'Proje güncellendi!');
         } else {
-          const newProject = result;
+          const newProject = result.project;
           setExistingProjects(prev => [newProject, ...prev]);
-          alert('Proje eklendi!');
+          alert(result.message || 'Proje eklendi!');
         }
         
         setEditingId(null);
@@ -187,7 +183,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           isExternal: true
         });
       } else {
-        throw new Error(result.error || result.message || 'İşlem başarısız');
+        throw new Error(result.message || 'İşlem başarısız');
       }
     } catch (error: any) {
       console.error('API Error:', error);
@@ -213,24 +209,25 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     
     setLoading(true);
     try {
+      // Backend expects JSON for communication consistency
       const response = await fetch(`/api/projects/${projectId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
 
-      const text = await response.text();
-      let result;
-      try {
-        result = JSON.parse(text);
-      } catch (e) {
-        throw new Error('API JSON döndürmedi: ' + text.substring(0, 50));
-      }
+      const result = await response.json().catch(() => {
+        throw new Error('API JSON formatında bir cevap dönmedi.');
+      });
 
       if (response.ok && result.success) {
         setExistingProjects(prev => prev.filter(p => String(p.id) !== String(projectId)));
         setDeleteConfirmId(null);
-        alert("Başarılı: Proje sistemden silindi.");
+        alert(result.message || "Başarılı: Proje sistemden silindi.");
       } else {
-        throw new Error(result.error || result.message || 'Sunucu silme işlemini reddetti.');
+        throw new Error(result.message || 'Sunucu silme işlemini reddetti.');
       }
     } catch (error: any) {
       console.error("SİLME HATASI:", error);

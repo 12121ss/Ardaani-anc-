@@ -44,8 +44,11 @@ export default function App() {
       } catch (error) {
         console.error('Failed to fetch projects:', error);
         const savedProjects = localStorage.getItem('my_portfolio_projects');
-        if (savedProjects) setProjects(JSON.parse(savedProjects));
-        else setProjects(initialProjects);
+        if (savedProjects) {
+          setProjects(JSON.parse(savedProjects));
+        } else {
+          setProjects([]);
+        }
       } finally {
         setLoading(false);
       }
