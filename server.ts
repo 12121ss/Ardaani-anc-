@@ -10,7 +10,7 @@ const DIST_PATH = path.join(process.cwd(), 'dist');
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   console.log(`[SERVER] Node Version: ${process.version}`);
   console.log(`[SERVER] ENV: ${process.env.NODE_ENV}`);

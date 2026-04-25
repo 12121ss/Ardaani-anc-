@@ -32,11 +32,11 @@ export function Navbar({}: NavbarProps) {
           <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 shrink-0">
             <img 
               src="https://media.discordapp.net/attachments/1496117674554425434/1496874543279771688/image1_1.jpeg?ex=69ecca0d&is=69eb788d&hm=f5fb90b2c844045fca50a19ed332ef4d88ad089a1f7550db12bb12262f5c97b1&=&format=webp&width=616&height=821" 
-              alt="Arda Nişancı" 
+              alt="Arda" 
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-sm font-bold tracking-tight hidden sm:block">ARDA NİŞANCI</span>
+          <span className="text-sm font-bold tracking-tight hidden sm:block">ARDA</span>
         </a>
 
         {/* Desktop Nav */}

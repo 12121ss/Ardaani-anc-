@@ -30,7 +30,7 @@ export function Skills() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             whileHover={{ y: -5 }}
-            className="glass-card bg-brand-surface/40"
+            className="glass-card p-8 bg-brand-surface/40"
           >
             <div className="w-12 h-12 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary mb-6">
               <skill.icon className="w-6 h-6" />

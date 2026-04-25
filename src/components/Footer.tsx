@@ -24,11 +24,11 @@ export function Footer({ onOpenAdmin }: FooterProps) {
               <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shrink-0 transition-transform group-hover:scale-105">
                 <img 
                   src="https://media.discordapp.net/attachments/1496117674554425434/1496874543279771688/image1_1.jpeg?ex=69ecca0d&is=69eb788d&hm=f5fb90b2c844045fca50a19ed332ef4d88ad089a1f7550db12bb12262f5c97b1&=&format=webp&width=616&height=821" 
-                  alt="Arda Nişancı" 
+                  alt="Arda" 
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-2xl font-display font-bold tracking-tight text-white group-hover:text-brand-primary transition-colors italic">ARDA NİŞANCI</span>
+              <span className="text-2xl font-display font-bold tracking-tight text-white group-hover:text-brand-primary transition-colors italic">ARDA</span>
             </a>
             <p className="text-slate-300 text-sm leading-relaxed max-w-sm">
               Ölçeklenebilir mimariler ve yüksek performanslı backend çözümleri üreten yazılım mühendisi. 
@@ -102,7 +102,7 @@ export function Footer({ onOpenAdmin }: FooterProps) {
         
         <div className="mt-8 text-center">
           <span className="text-[10px] text-slate-700 font-mono italic">
-            © {new Date().getFullYear()} ARDA NİŞANCI — Tüm Hakları Saklıdır.
+            © {new Date().getFullYear()} ARDA — Tüm Hakları Saklıdır.
           </span>
         </div>
       </div>

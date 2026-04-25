@@ -276,37 +276,6 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                   <Plus className="w-6 h-6 text-brand-primary" />
                   {editingId ? 'Projeyi Düzenle' : 'Yeni Proje Ekle'}
                 </div>
-                <div className="flex items-center gap-4">
-                  {editingId ? (
-                    <button 
-                      onClick={() => {
-                        setEditingId(null);
-                        setFormData({
-                          title: '',
-                          description: '',
-                          image: '',
-                          tags: '',
-                          github: '',
-                          link: '',
-                          isExternal: true
-                        });
-                      }}
-                      className="text-xs text-slate-500 hover:text-white transition-colors underline decoration-dotted"
-                    >
-                      Vazgeç
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => {
-                        setIsAuthenticated(false);
-                        sessionStorage.removeItem('isAdminAuthenticated');
-                      }}
-                      className="text-xs text-red-500/50 hover:text-red-500 transition-colors"
-                    >
-                      Güvenli Çıkış
-                    </button>
-                  )}
-                </div>
               </h2>
               <form onSubmit={handleAddProject} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2 space-y-2">
@@ -361,7 +330,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold ml-1">Etiketler (Virgülle ayırın)</label>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold ml-1">PROJEDE KULLANILAN TEKNOLOJİLER (Virgülle ayırın)</label>
                   <input 
                     type="text" 
                     placeholder="Node.js, Docker, Redis"
