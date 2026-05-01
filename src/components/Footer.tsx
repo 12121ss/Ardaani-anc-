@@ -24,7 +24,7 @@ export function Footer({ onOpenAdmin }: FooterProps) {
             <a href="#" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shrink-0 transition-transform group-hover:scale-105">
                 <SafeImage 
-                  src="/ardaprofil.png" 
+                  src={`${import.meta.env.BASE_URL}ardaprofil.png`} 
                   alt="Arda" 
                   className="w-full h-full"
                 />

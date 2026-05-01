@@ -8,7 +8,7 @@ interface NavbarProps {
 }
 
 export function Navbar({}: NavbarProps) {
-  const profileImage = "/ardaprofil.png";
+  const profileImage = `${import.meta.env.BASE_URL}ardaprofil.png`;
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
