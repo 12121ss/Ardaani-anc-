@@ -2,13 +2,13 @@ import { motion } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { SafeImage } from './SafeImage';
+import profileImage from '../assets/profile.png';
 
 interface NavbarProps {
   // Empty props
 }
 
 export function Navbar({}: NavbarProps) {
-  const profileImage = `${import.meta.env.BASE_URL}ardaprofil.png`;
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

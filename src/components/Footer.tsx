@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AdminModal } from './AdminModal';
 import { Shield } from 'lucide-react';
 import { SafeImage } from './SafeImage';
+import profileImage from '../assets/profile.png';
 
 interface FooterProps {
   onOpenAdmin: () => void;
@@ -24,7 +25,7 @@ export function Footer({ onOpenAdmin }: FooterProps) {
             <a href="#" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shrink-0 transition-transform group-hover:scale-105">
                 <SafeImage 
-                  src={`${import.meta.env.BASE_URL}ardaprofil.png`} 
+                  src={profileImage} 
                   alt="Arda" 
                   className="w-full h-full"
                 />

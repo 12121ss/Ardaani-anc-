@@ -1,8 +1,8 @@
 import { motion } from 'motion/react';
 import { SafeImage } from './SafeImage';
+import profileImage from '../assets/profile.png';
 
 export function About() {
-  const profileImage = `${import.meta.env.BASE_URL}ardaprofil.png`; 
 
   return (
     <section id="about" className="py-24 px-6 max-w-7xl mx-auto">
