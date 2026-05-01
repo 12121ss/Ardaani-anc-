@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AdminModal } from './AdminModal';
 import { Shield } from 'lucide-react';
 import { SafeImage } from './SafeImage';
+
 import profileImage from '../assets/profile.png';
 
 interface FooterProps {

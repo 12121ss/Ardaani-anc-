@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { SafeImage } from './SafeImage';
+
 import profileImage from '../assets/profile.png';
 
 interface NavbarProps {

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { SafeImage } from './SafeImage';
+
 import profileImage from '../assets/profile.png';
 
 export function About() {
