@@ -1,6 +1,10 @@
 import { motion } from 'motion/react';
+import { SafeImage } from './SafeImage';
 
 export function About() {
+  const profileImage = "/ardaprofil.png"; 
+  // Bilgisayarındaki 'ardaprofil.png' dosyasını sol taraftaki public klasörüne yükle.
+
   return (
     <section id="about" className="py-24 px-6 max-w-7xl mx-auto">
       <div className="flex flex-col mb-16">
@@ -11,11 +15,11 @@ export function About() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Profile Card */}
         <div className="md:col-span-2 glass-card p-8 flex flex-col md:flex-row gap-8 items-center">
-          <div className="w-32 h-32 md:w-48 md:h-48 rounded-2xl overflow-hidden shrink-0 border border-white/10">
-            <img 
-              src="https://media.discordapp.net/attachments/1496117674554425434/1496874543279771688/image1_1.jpeg?ex=69ecca0d&is=69eb788d&hm=f5fb90b2c844045fca50a19ed332ef4d88ad089a1f7550db12bb12262f5c97b1&=&format=webp&width=616&height=821" 
+          <div className="w-32 h-32 md:w-48 md:h-48 rounded-2xl overflow-hidden shrink-0 border border-white/10 shadow-2xl">
+            <SafeImage 
+              src={profileImage} 
               alt="Arda"
-              className="w-full h-full object-cover"
+              className="w-full h-full"
             />
           </div>
           <div className="space-y-4">

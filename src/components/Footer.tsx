@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AdminModal } from './AdminModal';
 import { Shield } from 'lucide-react';
+import { SafeImage } from './SafeImage';
 
 interface FooterProps {
   onOpenAdmin: () => void;
@@ -22,10 +23,10 @@ export function Footer({ onOpenAdmin }: FooterProps) {
           <div className="lg:col-span-5 space-y-8">
             <a href="#" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shrink-0 transition-transform group-hover:scale-105">
-                <img 
-                  src="https://media.discordapp.net/attachments/1496117674554425434/1496874543279771688/image1_1.jpeg?ex=69ecca0d&is=69eb788d&hm=f5fb90b2c844045fca50a19ed332ef4d88ad089a1f7550db12bb12262f5c97b1&=&format=webp&width=616&height=821" 
+                <SafeImage 
+                  src="/ardaprofil.png" 
                   alt="Arda" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
                 />
               </div>
               <span className="text-2xl font-display font-bold tracking-tight text-white group-hover:text-brand-primary transition-colors italic">ARDA</span>

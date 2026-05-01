@@ -1,12 +1,14 @@
 import { motion } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { SafeImage } from './SafeImage';
 
 interface NavbarProps {
   // Empty props
 }
 
 export function Navbar({}: NavbarProps) {
+  const profileImage = "/ardaprofil.png";
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -30,10 +32,10 @@ export function Navbar({}: NavbarProps) {
       <div className={`glass rounded-full px-6 py-3 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl shadow-brand-primary/10 border-white/20' : ''}`}>
         <a href="#" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 shrink-0">
-            <img 
-              src="https://media.discordapp.net/attachments/1496117674554425434/1496874543279771688/image1_1.jpeg?ex=69ecca0d&is=69eb788d&hm=f5fb90b2c844045fca50a19ed332ef4d88ad089a1f7550db12bb12262f5c97b1&=&format=webp&width=616&height=821" 
+            <SafeImage 
+              src={profileImage} 
               alt="Arda" 
-              className="w-full h-full object-cover"
+              className="w-full h-full"
             />
           </div>
           <span className="text-sm font-bold tracking-tight hidden sm:block">ARDA</span>
