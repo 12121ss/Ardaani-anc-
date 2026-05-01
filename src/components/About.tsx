@@ -3,7 +3,6 @@ import { SafeImage } from './SafeImage';
 
 export function About() {
   const profileImage = "/ardaprofil.png"; 
-  // Bilgisayarındaki 'ardaprofil.png' dosyasını sol taraftaki public klasörüne yükle.
 
   return (
     <section id="about" className="py-24 px-6 max-w-7xl mx-auto">
